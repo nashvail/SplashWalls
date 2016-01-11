@@ -10,10 +10,11 @@ var {
   StyleSheet,
   Text,
   View,
+  Component
 } = React;
 
-var SplashWalls = React.createClass({
-  render: function() {
+class SplashWalls extends Component{
+  render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
@@ -29,7 +30,7 @@ var SplashWalls = React.createClass({
       </View>
     );
   }
-});
+};
 
 var styles = StyleSheet.create({
   container: {
