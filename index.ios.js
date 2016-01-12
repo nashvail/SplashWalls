@@ -14,6 +14,30 @@ var {
 } = React;
 
 class SplashWalls extends Component{
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      wallsJSON: [],
+      isLoading: true
+    };
+
+  }
+
+  componentDidMount() {
+    this.fetchWallsJSON();      
+  }
+
+  fetchWallsJSON() {
+    var url = 'http://unsplash.it/list';
+    fetch(url)
+      .then( response => response.json() )
+      .then( jsonData => {
+        console.log(jsonData);
+      })
+      .catch( error => console.log('JSON Fetch error : ' + error) );
+  }
+
   render() {
     return (
       <View style={styles.container}>
