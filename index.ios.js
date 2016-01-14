@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-
+var RandManager = require('./RandManager.js');
 var React = require('react-native');
 var {
   AppRegistry,
@@ -14,13 +14,17 @@ var {
   ActivityIndicatorIOS
 } = React;
 
+const NUM_WALLPAPERS = 5;
+
 class SplashWalls extends Component{
   constructor(props) {
     super(props);
 
     this.state = {
       wallsJSON: [],
-      isLoading: true
+      isLoading: true,
+      randomWallIds: [],
+      currentWallIndex: 0
     };
 
   }
@@ -42,8 +46,17 @@ class SplashWalls extends Component{
     fetch(url)
       .then( response => response.json() )
       .then( jsonData => {
-        console.log(jsonData);
-        this.setState({isLoading: false});
+        var randomIds = RandManager.uniqueRandomNumbers(NUM_WALLPAPERS, 0, jsonData.length);
+        var walls = [];
+        randomIds.forEach(index => {
+          walls.push(jsonData[index]);
+        });
+
+        this.setState({
+          isLoading: false,
+          randomWallIds: [].concat(randomIds),
+          wallsJSON: [].concat(walls)
+        });
       })
       .catch( error => console.log('JSON Fetch error : ' + error) );
   }
@@ -62,13 +75,20 @@ class SplashWalls extends Component{
   }
 
   renderResults() {
-    return (
-      <View>
-        <Text>
-          Data loaded
-        </Text>
-      </View>
-    );
+    var {wallsJSON, isLoading} = this.state;
+    if( !isLoading ) {
+      return (
+        <View>
+          {wallsJSON.map((wallpaper, index) => {
+            return(
+              <Text key={index}>
+                {wallpaper.author}
+              </Text>
+            );
+          })}
+        </View>
+      );
+    }
   }
 
 };
