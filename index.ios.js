@@ -3,6 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
+var Swiper = require('react-native-swiper');
 var RandManager = require('./RandManager.js');
 var React = require('react-native');
 var {
@@ -74,11 +75,18 @@ class SplashWalls extends Component{
     );
   }
 
+  onMomentumScrollEnd() {
+    console.log('The screen was swiped');
+  }
+
   renderResults() {
     var {wallsJSON, isLoading} = this.state;
     if( !isLoading ) {
       return (
-        <View>
+        <Swiper
+          showsPagination={false}
+          showsHorizontalScrollIndicator={true}
+          onMomentumScrollEnd={this.onMomentumScrollEnd}>
           {wallsJSON.map((wallpaper, index) => {
             return(
               <Text key={index}>
@@ -86,7 +94,7 @@ class SplashWalls extends Component{
               </Text>
             );
           })}
-        </View>
+        </Swiper>
       );
     }
   }
