@@ -7,6 +7,7 @@ var NetworkImage = require('react-native-image-progress');
 var Progress = require('react-native-progress');
 var Swiper = require('react-native-swiper');
 var RandManager = require('./RandManager.js');
+var Utils = require('./Utils.js');
 var React = require('react-native');
 
 
@@ -17,12 +18,15 @@ var {
   View,
   Component,
   ActivityIndicatorIOS,
-  Dimensions 
+  Dimensions,
+  PanResponder
 } = React;
 
 var {width, height} = Dimensions.get('window');
 
 const NUM_WALLPAPERS = 5;
+const DOUBLE_TAP_DELAY = 300; // milliseconds
+const DOUBLE_TAP_RADIUS = 20;
 
 class SplashWalls extends Component{
   constructor(props) {
@@ -32,13 +36,32 @@ class SplashWalls extends Component{
       wallsJSON: [],
       isLoading: true,
       randomWallIds: [],
-      currentWallIndex: 0
+      currentWallIndex: 0,
     };
+
+    this.imagePanResponder = {};
+    // Previous touch information
+    this.prevTouchInfo = {
+      prevTouchX: 0,
+      prevTouchY: 0,
+      prevTouchTimeStamp: 0
+    };
+
+    this.handlePanResponderGrant = this.handlePanResponderGrant.bind(this);
 
   }
 
   componentDidMount() {
     this.fetchWallsJSON();      
+  }
+
+  componentWillMount() {
+    this.imagePanResponder = PanResponder.create({
+      onStartShouldSetPanResponder: this.handleStartShouldSetPanResponder,
+      onPanResponderGrant: this.handlePanResponderGrant,
+      onPanResponderRelease: this.handlePanResponderEnd,
+      onPanResponderTerminate: this.handlePanResponderEnd
+    });
   }
 
   render() {
@@ -98,7 +121,7 @@ class SplashWalls extends Component{
             return(
               <View key={index}>
                 <NetworkImage
-                  source={{uri: `https://unsplash.it/${width}/${height}?image=${wallpaper.id}`}}
+                  source={{uri: `https://unsplash.it/${wallpaper.width}/${wallpaper.height}?image=${wallpaper.id}`}}
                   indicator={Progress.Circle}
                   indicatorProps={{
                     showsText: true,
@@ -110,7 +133,8 @@ class SplashWalls extends Component{
                       fontWeight: 'bold'
                     }
                   }}
-                  style={styles.wallpaperImage}>
+                  style={styles.wallpaperImage}
+                  {...this.imagePanResponder.panHandlers}>
 
                     <Text style={styles.label}>Photo by</Text>
                     <Text style={styles.label_authorName}>{wallpaper.author}</Text>
@@ -123,6 +147,36 @@ class SplashWalls extends Component{
       );
     }
   }
+
+  // Pan Handler methods
+  handleStartShouldSetPanResponder(e, gestureState){
+    return true;
+  }
+
+  handlePanResponderGrant(e, gestureState) {
+    var currentTouchTimeStamp = Date.now();
+
+    if( this.isDoubleTap(currentTouchTimeStamp, gestureState) ) 
+      console.log('Double tap detected');
+
+    this.prevTouchInfo = {
+      prevTouchX: gestureState.x0,
+      prevTouchY: gestureState.y0,
+      prevTouchTimeStamp: currentTouchTimeStamp
+    };
+  }
+
+  handlePanResponderEnd(e, gestureState) {
+    // When finger is pulled up from the screen
+  }
+
+  isDoubleTap(currentTouchTimeStamp, {x0, y0}) {
+    var {prevTouchX, prevTouchY, prevTouchTimeStamp} = this.prevTouchInfo;
+    var dt = currentTouchTimeStamp - prevTouchTimeStamp;
+
+    return (dt < DOUBLE_TAP_DELAY && Utils.distance(prevTouchX, prevTouchY, x0, y0) < DOUBLE_TAP_RADIUS);
+  }
+
 
 };
 

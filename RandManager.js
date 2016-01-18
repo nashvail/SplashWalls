@@ -1,4 +1,5 @@
 module.exports = {
+
 	uniqueRandomNumbers(numRandomNumbers, lowerLimit, upperLimit) {
 		var uniqueNumbers = [];
 		while( uniqueNumbers.length != numRandomNumbers ) {
