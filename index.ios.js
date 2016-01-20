@@ -10,6 +10,8 @@ var RandManager = require('./RandManager.js');
 var Utils = require('./Utils.js');
 var React = require('react-native');
 
+// Components 
+var ProgressHUD = require('./ProgressHUD.js');
 
 var {
   AppRegistry,
@@ -19,7 +21,9 @@ var {
   Component,
   ActivityIndicatorIOS,
   Dimensions,
-  PanResponder
+  PanResponder,
+  CameraRoll,
+  AlertIOS
 } = React;
 
 var {width, height} = Dimensions.get('window');
@@ -35,11 +39,11 @@ class SplashWalls extends Component{
     this.state = {
       wallsJSON: [],
       isLoading: true,
-      randomWallIds: [],
-      currentWallIndex: 0,
+      isHudVisible: false
     };
 
     this.imagePanResponder = {};
+
     // Previous touch information
     this.prevTouchInfo = {
       prevTouchX: 0,
@@ -47,7 +51,11 @@ class SplashWalls extends Component{
       prevTouchTimeStamp: 0
     };
 
+    this.currentWallIndex = 0;
+
+    // Binding this to methods
     this.handlePanResponderGrant = this.handlePanResponderGrant.bind(this);
+    this.onMomentumScrollEnd = this.onMomentumScrollEnd.bind(this);
 
   }
 
@@ -85,7 +93,6 @@ class SplashWalls extends Component{
 
         this.setState({
           isLoading: false,
-          randomWallIds: [].concat(randomIds),
           wallsJSON: [].concat(walls)
         });
       })
@@ -105,47 +112,69 @@ class SplashWalls extends Component{
     );
   }
 
-  onMomentumScrollEnd() {
-    console.log('The screen was swiped');
+  saveCurrentWallpaperToCameraRoll() {
+    console.log('this function was called', this);
+    var {wallsJSON} = this.state;
+    var currentWall = wallsJSON[this.currentWallIndex];
+    var currentWallURL = `http://unsplash.it/${currentWall.width}/${currentWall.height}?image=${currentWall.id}`;
+
+    this.setState({isHudVisible: true});
+
+    CameraRoll.saveImageWithTag(currentWallURL, (data) => {
+      console.log('Now I am inside this function');
+      this.setState({isHudVisible: false});
+      AlertIOS.alert(
+        'Saved',
+        'Wallpaper successfully saved to Camera Roll',
+        [
+          {text: 'High 5!', onPress: () => console.log('OK Pressed!')}
+        ]
+      );
+    },(err) =>{
+      console.log('Error saving to camera roll', err);
+    });
+
+  }
+
+  onMomentumScrollEnd(e, state, context) {
+    this.currentWallIndex = state.index;
   }
 
   renderResults() {
-    var {wallsJSON, isLoading} = this.state;
-    if( !isLoading ) {
-      return (
-        <Swiper
-          showsPagination={false}
-          showsHorizontalScrollIndicator={true}
-          onMomentumScrollEnd={this.onMomentumScrollEnd}>
-          {wallsJSON.map((wallpaper, index) => {
-            return(
-              <View key={index}>
-                <NetworkImage
-                  source={{uri: `https://unsplash.it/${wallpaper.width}/${wallpaper.height}?image=${wallpaper.id}`}}
-                  indicator={Progress.Circle}
-                  indicatorProps={{
-                    showsText: true,
-                    color: 'rgba(255, 255, 255)',
-                    size: 60,
-                    thickness: 7,
-                    textStyle: {
-                      color: '#fff',
-                      fontWeight: 'bold'
-                    }
-                  }}
-                  style={styles.wallpaperImage}
-                  {...this.imagePanResponder.panHandlers}>
+    var {wallsJSON, isHudVisible} = this.state;
+    return (
+      <View>
+      <Swiper
+        activeDot={<View style={{backgroundColor: '#fff', width: 13, height: 13, borderRadius: 7, marginLeft: 7, marginRight: 7}} />}
+        onMomentumScrollEnd={this.onMomentumScrollEnd}
+        index={this.currentWallIndex}
+        loop={false}>
+        {wallsJSON.map((wallpaper, index) => {
+          return(
+            <View key={wallpaper.id}>
+              <NetworkImage
+                source={{uri: `https://unsplash.it/${wallpaper.width}/${wallpaper.height}?image=${wallpaper.id}`}}
+                indicator={Progress.Circle}
+                indicatorProps={{
+                  color: 'rgba(255, 255, 255)',
+                  size: 60,
+                  thickness: 7
+                }}
+                threshold={0}
+                style={styles.wallpaperImage}
+                {...this.imagePanResponder.panHandlers}>
 
-                    <Text style={styles.label}>Photo by</Text>
-                    <Text style={styles.label_authorName}>{wallpaper.author}</Text>
+                  <Text style={styles.label}>Photo by</Text>
+                  <Text style={styles.label_authorName}>{wallpaper.author}</Text>
 
-                </NetworkImage>
-              </View>
-            );
-          })}
-        </Swiper>
-      );
-    }
+              </NetworkImage>
+            </View>
+          );
+        })}
+      </Swiper>
+      <ProgressHUD width={width} height={height} isVisible={isHudVisible}/>
+      </View>
+    );
   }
 
   // Pan Handler methods
@@ -157,7 +186,7 @@ class SplashWalls extends Component{
     var currentTouchTimeStamp = Date.now();
 
     if( this.isDoubleTap(currentTouchTimeStamp, gestureState) ) 
-      console.log('Double tap detected');
+      this.saveCurrentWallpaperToCameraRoll();
 
     this.prevTouchInfo = {
       prevTouchX: gestureState.x0,
