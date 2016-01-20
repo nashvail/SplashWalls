@@ -3,6 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
+var ShakeEvent = require('react-native-shake-event-ios');
 var NetworkImage = require('react-native-image-progress');
 var Progress = require('react-native-progress');
 var Swiper = require('react-native-swiper');
@@ -70,6 +71,12 @@ class SplashWalls extends Component{
       onPanResponderRelease: this.handlePanResponderEnd,
       onPanResponderTerminate: this.handlePanResponderEnd
     });
+
+    // Fetch new wallpapers on shake
+    ShakeEvent.addEventListener('shake', () => {
+      this.initialize();
+      this.fetchWallsJSON();
+    });
   }
 
   render() {
@@ -78,6 +85,16 @@ class SplashWalls extends Component{
       return this.renderLoadingMessage();
     else
       return this.renderResults();
+  }
+
+  initialize() {
+    this.setState({
+      wallsJSON: [],
+      isLoading: true,
+      isHudVisible: false
+    });
+
+    this.currentWallIndex = 0;
   }
 
   fetchWallsJSON() {
@@ -145,6 +162,7 @@ class SplashWalls extends Component{
     return (
       <View>
       <Swiper
+        dot={<View style={{backgroundColor:'rgba(255,255,255,.4)', width: 8, height: 8,borderRadius: 10, marginLeft: 3, marginRight: 3, marginTop: 3, marginBottom: 3,}} />}
         activeDot={<View style={{backgroundColor: '#fff', width: 13, height: 13, borderRadius: 7, marginLeft: 7, marginRight: 7}} />}
         onMomentumScrollEnd={this.onMomentumScrollEnd}
         index={this.currentWallIndex}

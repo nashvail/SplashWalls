@@ -9,6 +9,7 @@
     "react-native": "^0.17.0",
     "react-native-image-progress": "^0.4.0",
     "react-native-progress": "^2.2.0",
+    "react-native-shake-event-ios": "^1.0.3",
     "react-native-swiper": "^1.4.3"
   }
 }
