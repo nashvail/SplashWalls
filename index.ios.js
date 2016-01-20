@@ -113,16 +113,17 @@ class SplashWalls extends Component{
   }
 
   saveCurrentWallpaperToCameraRoll() {
-    console.log('this function was called', this);
+    // Make Progress HUD visible
+    this.setState({isHudVisible: true});
+
     var {wallsJSON} = this.state;
     var currentWall = wallsJSON[this.currentWallIndex];
     var currentWallURL = `http://unsplash.it/${currentWall.width}/${currentWall.height}?image=${currentWall.id}`;
 
-    this.setState({isHudVisible: true});
-
     CameraRoll.saveImageWithTag(currentWallURL, (data) => {
-      console.log('Now I am inside this function');
+      // Hide Progress HUD
       this.setState({isHudVisible: false});
+
       AlertIOS.alert(
         'Saved',
         'Wallpaper successfully saved to Camera Roll',
@@ -133,7 +134,6 @@ class SplashWalls extends Component{
     },(err) =>{
       console.log('Error saving to camera roll', err);
     });
-
   }
 
   onMomentumScrollEnd(e, state, context) {

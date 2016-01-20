@@ -3,8 +3,6 @@
 var React = require('react-native');
 
 var {
-  StyleSheet,
-  Text,
   View,
   Component,
   ActivityIndicatorIOS,
@@ -35,7 +33,7 @@ class ProgressHUD extends Component {
 				 <ActivityIndicatorIOS
 	          animating={true}
 	          color={'#fff'}
-	          size={'small'} 
+	          size={'large'} 
 	          style={{margin: 15}} />
 				</View>	
 
