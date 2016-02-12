@@ -4,6 +4,7 @@ var React = require('react-native');
 
 var {
   View,
+  Text,
   Component,
   ActivityIndicatorIOS,
 } = React;
@@ -20,7 +21,7 @@ class ProgressHUD extends Component {
 				<View 
 				 style={{
 				 	flex: 1,
-				 	flexDirection: 'row',
+				 	flexDirection: 'column',
 				 	justifyContent: 'center',
 				 	alignItems: 'center',
 				 	width: width,
@@ -35,6 +36,7 @@ class ProgressHUD extends Component {
 	          color={'#fff'}
 	          size={'large'} 
 	          style={{margin: 15}} />
+	       <Text style={{color:'#fff'}}>Please wait...</Text>
 				</View>	
 
 			);

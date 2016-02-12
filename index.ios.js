@@ -104,8 +104,8 @@ class SplashWalls extends Component{
       .then( jsonData => {
         var randomIds = RandManager.uniqueRandomNumbers(NUM_WALLPAPERS, 0, jsonData.length);
         var walls = [];
-        randomIds.forEach(index => {
-          walls.push(jsonData[index]);
+        randomIds.forEach(randomId => {
+          walls.push(jsonData[randomId]);
         });
 
         this.setState({
