@@ -7,4 +7,4 @@ iOS Wallpaper downloading app created in React Native.
 
 #Video Demo
 
-[![Video Demo](https://img.youtube.com/vi/10PFmmLDKhE/0.jpg)](https://www.youtube.com/watch?v=10PFmmLDKhE)
+[![Video Demo](https://img.youtube.com/vi/MT2o7WHpHD4/0.jpg)](https://www.youtube.com/watch?v=MT2o7WHpHD4)
