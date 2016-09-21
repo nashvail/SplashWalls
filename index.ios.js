@@ -1,7 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- */
 'use strict';
 var ShakeEvent = require('react-native-shake-event-ios');
 var NetworkImage = require('react-native-image-progress');
